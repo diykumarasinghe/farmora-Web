@@ -1,0 +1,33 @@
+# Environment Variables
+.env
+backend/.env
+frontend/.env
+
+# Node & Frontend Build
+node_modules/
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+
+# Java & Backend Build
+backend/target/
+*.class
+.mvn/wrapper/maven-wrapper.jar
+
+# IDE & Editor files
+.idea/
+.vscode/
+*.iml
+.project
+.classpath
+.settings/
+.DS_Store
+
+# Log files
+*.log
+logs/
+
+# Exception: keep template environment configs
+!.env.example
+!backend/.env.example
+!frontend/.env.example

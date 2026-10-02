@@ -1,0 +1,180 @@
+/* ============================================================
+   FARMORA DESIGN SYSTEM — v2.0
+   Modern White/Green Agricultural Marketplace
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+:root {
+  --primary:       #2d6a4f;
+  --primary-dark:  #1b4332;
+  --primary-hover: #1b4332;
+  --primary-light: #d8f3dc;
+  --primary-mid:   #40916c;
+  --accent:        #e9c46a;
+  --accent-orange: #f4a261;
+  --dark-green:    #081c15;
+  --success:       #40916c;
+  --warning:       #e76f51;
+  --bg-soft:       #f8f9f4;
+  --bg-white:      #ffffff;
+  --text-dark:     #111827;
+  --text-muted:    #6b7280;
+  --border-light:  #f1f5f1;
+  --card-shadow:   0 4px 16px rgba(0, 0, 0, 0.06);
+  --card-hover:    0 12px 32px rgba(45, 106, 79, 0.12);
+  --radius:        12px;
+  --transition:    all 0.25s ease-in-out;
+}
+
+/* ── Base ──────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background-color: #ffffff;
+  color: var(--text-dark);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  -webkit-font-smoothing: antialiased;
+}
+
+#app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.main-content { flex: 1 0 auto; }
+
+/* ── Typography Helpers ───────────────────────────────── */
+.text-farmora-green { color: var(--primary) !important; }
+.text-primary-dark  { color: var(--primary-dark) !important; }
+.bg-farmora-green   { background-color: var(--primary) !important; color: #fff !important; }
+.bg-farmora-dark    { background-color: var(--primary-dark) !important; color: #fff !important; }
+.bg-farmora-light   { background-color: var(--primary-light) !important; }
+
+/* ── Buttons ──────────────────────────────────────────── */
+.btn-farmora {
+  background-color: var(--primary);
+  color: #fff;
+  border: 2px solid var(--primary);
+  font-weight: 600;
+  border-radius: 8px;
+  padding: 0.55rem 1.3rem;
+  transition: var(--transition);
+}
+
+.btn-farmora:hover {
+  background-color: var(--primary-dark);
+  border-color: var(--primary-dark);
+  color: #fff;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(45, 106, 79, 0.25);
+}
+
+.btn-farmora-outline {
+  background: transparent;
+  color: var(--primary);
+  border: 2px solid var(--primary);
+  font-weight: 600;
+  border-radius: 8px;
+  padding: 0.5rem 1.2rem;
+  transition: var(--transition);
+}
+
+.btn-farmora-outline:hover {
+  background: var(--primary);
+  color: #fff;
+}
+
+/* ── Cards ────────────────────────────────────────────── */
+.card {
+  border-radius: var(--radius);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  box-shadow: var(--card-shadow);
+  transition: var(--transition);
+  background: #fff;
+}
+
+.card:hover { box-shadow: var(--card-hover); }
+
+.dashboard-card {
+  border-radius: var(--radius);
+  background: #fff;
+  padding: 1.5rem;
+  border-left: 4px solid var(--primary);
+  box-shadow: var(--card-shadow);
+}
+
+/* ── Status Badges ───────────────────────────────────── */
+.badge-available  { background: #d8f3dc; color: #1b4332; font-weight: 600; }
+.badge-sold-out   { background: #fee2e2; color: #991b1b; font-weight: 600; }
+.badge-pending    { background: #fef3c7; color: #92400e; font-weight: 600; }
+.badge-confirmed  { background: #e0f2fe; color: #0369a1; font-weight: 600; }
+.badge-delivered  { background: #dcfce7; color: #15803d; font-weight: 600; }
+
+/* ── Sidebar (Dashboards) ─────────────────────────────── */
+.sidebar {
+  background: #fff;
+  border-radius: var(--radius);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  padding: 1rem;
+  box-shadow: var(--card-shadow);
+}
+
+.sidebar .nav-link {
+  color: #4b5563;
+  font-weight: 500;
+  padding: 0.7rem 1rem;
+  border-radius: 8px;
+  margin-bottom: 0.2rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  transition: var(--transition);
+  font-size: 0.9rem;
+}
+
+.sidebar .nav-link:hover {
+  background: var(--primary-light);
+  color: var(--primary);
+}
+
+.sidebar .nav-link.active {
+  background: var(--primary);
+  color: #fff !important;
+}
+
+/* ── Tables ──────────────────────────────────────────── */
+.table thead th {
+  background: #f8f9fa;
+  font-weight: 600;
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #475569;
+  border: none;
+}
+
+/* ── Form Controls ───────────────────────────────────── */
+.form-control:focus,
+.form-select:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(45, 106, 79, 0.12);
+}
+
+/* ── Section spacing ─────────────────────────────────── */
+section { position: relative; }
+
+/* ── Utility ─────────────────────────────────────────── */
+.tracking-tight { letter-spacing: -0.02em; }
+.tracking-wide  { letter-spacing: 0.06em; }
+.leading-relaxed { line-height: 1.7; }
+
+/* ── Scrollbar ───────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #f1f5f9; }
+::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--primary); }
