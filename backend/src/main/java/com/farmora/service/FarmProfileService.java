@@ -15,7 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -122,6 +121,35 @@ public class FarmProfileService {
         }
         if (request.getArchivedSections() != null) {
             profile.setArchivedSections(request.getArchivedSections());
+        }
+
+        // Personal, Delivery, Payment & Verification Extensions
+        if (request.getLanguagesSpoken() != null) {
+            profile.setLanguagesSpoken(request.getLanguagesSpoken().trim());
+        }
+        if (request.getFarmCategory() != null) {
+            profile.setFarmCategory(request.getFarmCategory().trim());
+        }
+        if (request.getPickupAvailable() != null) {
+            profile.setPickupAvailable(request.getPickupAvailable());
+        }
+        if (request.getHomeDeliveryAvailable() != null) {
+            profile.setHomeDeliveryAvailable(request.getHomeDeliveryAvailable());
+        }
+        if (request.getDeliveryRadius() != null) {
+            profile.setDeliveryRadius(request.getDeliveryRadius());
+        }
+        if (request.getDeliveryFee() != null) {
+            profile.setDeliveryFee(request.getDeliveryFee());
+        }
+        if (request.getBankAccount() != null) {
+            profile.setBankAccount(request.getBankAccount().trim());
+        }
+        if (request.getMobileWallet() != null) {
+            profile.setMobileWallet(request.getMobileWallet().trim());
+        }
+        if (request.getNicDocumentUrl() != null) {
+            profile.setNicDocumentUrl(request.getNicDocumentUrl().trim());
         }
 
         // Keep farmer user address synchronized if provided
@@ -275,6 +303,15 @@ public class FarmProfileService {
                 .isArchived(profile.getIsArchived() != null ? profile.getIsArchived() : false)
                 .archivedSections(profile.getArchivedSections())
                 .certifications(profile.getCertifications())
+                .nicDocumentUrl(profile.getNicDocumentUrl())
+                .languagesSpoken(profile.getLanguagesSpoken())
+                .farmCategory(profile.getFarmCategory())
+                .pickupAvailable(profile.getPickupAvailable() != null ? profile.getPickupAvailable() : true)
+                .homeDeliveryAvailable(profile.getHomeDeliveryAvailable() != null ? profile.getHomeDeliveryAvailable() : true)
+                .deliveryRadius(profile.getDeliveryRadius() != null ? profile.getDeliveryRadius() : 25.0)
+                .deliveryFee(profile.getDeliveryFee() != null ? profile.getDeliveryFee() : 0.0)
+                .bankAccount(profile.getBankAccount())
+                .mobileWallet(profile.getMobileWallet())
                 .verificationStatus(profile.getVerificationStatus())
                 .verificationNotes(profile.getVerificationNotes())
                 .verifiedAt(profile.getVerifiedAt())

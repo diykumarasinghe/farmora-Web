@@ -108,6 +108,21 @@ const role = computed(() => authStore.role)
         <span>Orders & Shipments</span>
       </router-link>
 
+      <!-- ENGAGEMENT & COMMS -->
+      <div class="sidebar-section-title mt-3">ENGAGEMENT & AI</div>
+      <router-link to="/messages" class="nav-link" :class="{ active: activeMenu === 'messages' }">
+        <i class="bi bi-chat-dots"></i>
+        <span>Chat & Video</span>
+      </router-link>
+      <router-link to="/ai-tools" class="nav-link" :class="{ active: activeMenu === 'ai-tools' }">
+        <i class="bi bi-cpu text-warning"></i>
+        <span>AI Intelligence</span>
+      </router-link>
+      <router-link to="/agri-info" class="nav-link" :class="{ active: activeMenu === 'agri-info' }">
+        <i class="bi bi-journal-text"></i>
+        <span>Agri Info & Calendar</span>
+      </router-link>
+
       <!-- Support Box -->
       <router-link to="/contact" class="support-card text-decoration-none mt-4 d-flex align-items-center gap-2 p-3 rounded-3">
         <div class="support-icon rounded-circle d-flex align-items-center justify-content-center">
@@ -132,13 +147,22 @@ const role = computed(() => authStore.role)
         <i class="bi bi-search"></i> Explore Market
       </router-link>
       <router-link to="/buyer/my-bids" class="nav-link" :class="{ active: activeMenu === 'bids' }">
-        <i class="bi bi-tag"></i> My Placed Bids
+        <i class="bi bi-tag"></i> Bids & Negotiations
       </router-link>
       <router-link to="/buyer/orders" class="nav-link" :class="{ active: activeMenu === 'orders' }">
-        <i class="bi bi-bag-check"></i> My Purchases
+        <i class="bi bi-bag-check"></i> Orders & Logistics
       </router-link>
       <router-link to="/buyer/favourites" class="nav-link" :class="{ active: activeMenu === 'favourites' }">
         <i class="bi bi-heart"></i> Favourite Farms
+      </router-link>
+      <router-link to="/messages" class="nav-link" :class="{ active: activeMenu === 'messages' }">
+        <i class="bi bi-chat-dots"></i> Chat & Video
+      </router-link>
+      <router-link to="/ai-tools" class="nav-link" :class="{ active: activeMenu === 'ai-tools' }">
+        <i class="bi bi-cpu text-warning"></i> AI Intelligence
+      </router-link>
+      <router-link to="/agri-info" class="nav-link" :class="{ active: activeMenu === 'agri-info' }">
+        <i class="bi bi-journal-text"></i> Agri Info & Calendar
       </router-link>
       <router-link to="/buyer/profile" class="nav-link" :class="{ active: activeMenu === 'profile' }">
         <i class="bi bi-person-gear"></i> Buyer Account
@@ -183,6 +207,9 @@ const role = computed(() => authStore.role)
       </router-link>
       <router-link to="/admin/reports" class="nav-link" :class="{ active: activeMenu === 'reports' }">
         <i class="bi bi-graph-up-arrow"></i> Reports
+      </router-link>
+      <router-link to="/agri-info" class="nav-link" :class="{ active: activeMenu === 'agri-info' }">
+        <i class="bi bi-megaphone"></i> Agri Announcements
       </router-link>
     </template>
   </div>

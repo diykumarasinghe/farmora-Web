@@ -6,6 +6,7 @@ import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
@@ -44,6 +45,22 @@ public class Delivery {
 
     @Column(length = 255)
     private String trackingNotes;
+
+    @Column(length = 50)
+    private String recipientPhone;
+
+    @Column(length = 500)
+    private String specialInstructions;
+
+    private Double currentLat;
+
+    private Double currentLng;
+
+    @Column(length = 100)
+    private String estimatedDeliveryTime;
+
+    @Column(precision = 10, scale = 2)
+    private BigDecimal deliveryFee;
 
     private LocalDateTime assignedAt;
 

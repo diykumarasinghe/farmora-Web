@@ -17,6 +17,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class OrderResponse {
     private Long id;
+    private String orderNumber;
     private Long bidId;
     private UserResponse buyer;
     private UserResponse farmer;
@@ -25,8 +26,13 @@ public class OrderResponse {
     private BigDecimal unitPrice;
     private BigDecimal totalAmount;
     private OrderStatus status;
+    private String fulfillmentType;
+    private String paymentStatus;
+    private String paymentMethod;
     private String deliveryAddress;
     private String pickupAddress;
+    private String cancellationReason;
+    private String notes;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

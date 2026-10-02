@@ -102,9 +102,34 @@ const router = createRouter({
       component: () => import('../views/farmer/DailyHarvestView.vue'),
     },
     {
+      path: '/agri-info',
+      name: 'agricultural-info',
+      component: () => import('../views/shared/AgriculturalInfoView.vue'),
+    },
+    {
+      path: '/crop-calendar',
+      name: 'crop-calendar',
+      component: () => import('../views/shared/AgriculturalInfoView.vue'),
+    },
+    {
       path: '/farms/:id',
       name: 'public-farm-profile',
       component: () => import('../views/public/PublicFarmProfile.vue'),
+    },
+    {
+      path: '/ai-tools',
+      name: 'ai-tools',
+      component: () => import('../views/shared/AiCropIntelligenceView.vue'),
+    },
+    {
+      path: '/ai-assistant',
+      name: 'ai-assistant',
+      component: () => import('../views/shared/AiCropIntelligenceView.vue'),
+    },
+    {
+      path: '/ai-intelligence',
+      name: 'ai-intelligence',
+      component: () => import('../views/shared/AiCropIntelligenceView.vue'),
     },
 
     // ============================================================

@@ -1,7 +1,6 @@
 package com.farmora.dto.auth;
 
 import com.farmora.model.Role;
-import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -20,11 +19,10 @@ public class RegisterRequest {
     @Size(min = 2, max = 100, message = "Full name must be between 2 and 100 characters")
     private String fullName;
 
-    @NotBlank(message = "Email is required")
-    @Email(message = "Please provide a valid email address")
-    private String email;
+    private String email; // Optional for quick sign-up
 
-    @Size(max = 25, message = "Phone must be at most 25 characters")
+    @NotBlank(message = "Mobile number is required")
+    @Size(max = 25, message = "Mobile number must be at most 25 characters")
     private String phone;
 
     @NotBlank(message = "Password is required")
@@ -34,6 +32,8 @@ public class RegisterRequest {
     @NotNull(message = "Role is required")
     private Role role; // FARMER, BUYER, DELIVERY_PARTNER (ADMIN is forbidden on public register)
 
+    private String farmName; // Required for Farmer quick sign-up
+    private String district; // Essential district selection
     private String address;
 
     private com.farmora.model.BuyerType buyerType;

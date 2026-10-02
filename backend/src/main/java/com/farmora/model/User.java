@@ -63,6 +63,12 @@ public class User {
     @Column(length = 60)
     private String businessRegNumber;
 
+    @Column(length = 100)
+    private String district;
+
+    @Column(length = 50)
+    private String preferredLanguage;
+
     @Builder.Default
     @Column(nullable = false)
     private Boolean active = true;

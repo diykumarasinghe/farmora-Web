@@ -20,4 +20,8 @@ public class UpdateProfileRequest {
     private String businessName;
 
     private String businessRegNumber;
+
+    private String district;
+
+    private String preferredLanguage;
 }

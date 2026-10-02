@@ -95,7 +95,16 @@ const handleLogout = () => {
             <router-link to="/agricultural-map" class="nav-link fw-medium px-3" active-class="nav-active">Agri Map</router-link>
           </li>
           <li class="nav-item">
+            <router-link to="/agri-info" class="nav-link fw-medium px-3" active-class="nav-active">Agri Hub</router-link>
+          </li>
+          <li class="nav-item">
             <router-link to="/price-trends" class="nav-link fw-medium px-3" active-class="nav-active">Price Trends</router-link>
+          </li>
+          <li class="nav-item">
+            <router-link to="/ai-tools" class="nav-link fw-medium px-3 d-flex align-items-center gap-1" active-class="nav-active">
+              <i class="bi bi-stars text-warning"></i>
+              <span>AI Hub</span>
+            </router-link>
           </li>
           <li class="nav-item">
             <router-link to="/about" class="nav-link fw-medium px-3" active-class="nav-active">About</router-link>
@@ -128,6 +137,11 @@ const handleLogout = () => {
           </template>
 
           <template v-else>
+            <!-- Chat & Video Communication -->
+            <router-link to="/messages" class="position-relative nav-icon-btn" title="Messages & Live Calls">
+              <i class="bi bi-chat-dots fs-5"></i>
+            </router-link>
+
             <!-- Notification Bell -->
             <router-link to="/notifications" class="position-relative nav-icon-btn">
               <i class="bi bi-bell fs-5"></i>
@@ -161,6 +175,16 @@ const handleLogout = () => {
                 <li>
                   <router-link :to="dashboardRoute" class="dropdown-item py-2">
                     <i class="bi bi-speedometer2 me-2 text-success"></i>Dashboard
+                  </router-link>
+                </li>
+                <li>
+                  <router-link to="/messages" class="dropdown-item py-2">
+                    <i class="bi bi-chat-dots me-2 text-info"></i>Messages & Calls
+                  </router-link>
+                </li>
+                <li>
+                  <router-link to="/agri-info" class="dropdown-item py-2">
+                    <i class="bi bi-journal-text me-2 text-success"></i>Agri Hub & Calendar
                   </router-link>
                 </li>
                 <li>

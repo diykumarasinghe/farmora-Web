@@ -88,11 +88,18 @@ const handleSubmit = async () => {
       description: form.value.description,
       category: form.value.category,
       price: parseFloat(form.value.price),
+      wholesalePrice: form.value.wholesalePrice ? parseFloat(form.value.wholesalePrice) : null,
       quantity: parseFloat(form.value.quantity),
       unit: form.value.unit,
       location: form.value.location,
       harvestDate: form.value.harvestDate,
-      imageUrl: form.value.imageUrl
+      imageUrl: form.value.imageUrl,
+      videoUrl: form.value.videoUrl || null,
+      farmingMethod: form.value.farmingMethod || 'Organic',
+      qualityGrade: form.value.qualityGrade || 'Grade A',
+      packagingInfo: form.value.packagingInfo || '',
+      minOrderQuantity: form.value.minOrderQuantity ? parseFloat(form.value.minOrderQuantity) : 1,
+      bulkOrderAvailable: form.value.bulkOrderAvailable !== false
     }
     await productService.updateProduct(id, payload)
     

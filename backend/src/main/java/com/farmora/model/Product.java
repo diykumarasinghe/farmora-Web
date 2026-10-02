@@ -61,6 +61,30 @@ public class Product {
     @Column(length = 500)
     private String imageUrl;
 
+    @Column(length = 500)
+    private String videoUrl;
+
+    private LocalDate expiryDate;
+
+    @Column(length = 50)
+    private String farmingMethod;
+
+    @Column(length = 30)
+    private String qualityGrade;
+
+    @Column(length = 150)
+    private String packagingInfo;
+
+    @Column(precision = 12, scale = 2)
+    private BigDecimal minOrderQuantity;
+
+    @Column(precision = 12, scale = 2)
+    private BigDecimal wholesalePrice;
+
+    @Builder.Default
+    @Column(nullable = false)
+    private Boolean bulkOrderAvailable = true;
+
     @Enumerated(EnumType.STRING)
     @Builder.Default
     @Column(nullable = false, length = 20)

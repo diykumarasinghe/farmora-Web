@@ -58,8 +58,25 @@ public class FarmProfileResponse {
     private Boolean isArchived;
     private String archivedSections;
 
-    // Certifications
+    // Certifications & Verification
     private String certifications;
+    private String nicDocumentUrl;
+
+    // Personal & Languages
+    private String languagesSpoken;
+
+    // Farm Category
+    private String farmCategory;
+
+    // Delivery Options
+    private Boolean pickupAvailable;
+    private Boolean homeDeliveryAvailable;
+    private Double deliveryRadius;
+    private Double deliveryFee;
+
+    // Payment Details
+    private String bankAccount;
+    private String mobileWallet;
 
     // Verification Badge System
     private VerificationStatus verificationStatus;

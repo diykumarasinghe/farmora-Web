@@ -1,9 +1,13 @@
 package com.farmora.controller;
 
+import com.farmora.dto.order.CancelOrderRequest;
+import com.farmora.dto.order.CreateOrderRequest;
 import com.farmora.dto.order.OrderResponse;
 import com.farmora.model.OrderStatus;
 import com.farmora.service.OrderService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -17,6 +21,15 @@ import java.util.List;
 public class OrderController {
 
     private final OrderService orderService;
+
+    @PostMapping
+    public ResponseEntity<OrderResponse> createDirectOrder(
+            @Valid @RequestBody CreateOrderRequest request,
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(orderService.createDirectOrder(request, userDetails.getUsername()));
+    }
 
     @GetMapping("/my")
     public ResponseEntity<List<OrderResponse>> getMyOrders(@AuthenticationPrincipal UserDetails userDetails) {
@@ -38,5 +51,14 @@ public class OrderController {
             @AuthenticationPrincipal UserDetails userDetails
     ) {
         return ResponseEntity.ok(orderService.updateOrderStatus(id, status, userDetails.getUsername()));
+    }
+
+    @PutMapping("/{id}/cancel")
+    public ResponseEntity<OrderResponse> cancelOrder(
+            @PathVariable Long id,
+            @RequestBody(required = false) CancelOrderRequest request,
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        return ResponseEntity.ok(orderService.cancelOrder(id, request, userDetails.getUsername()));
     }
 }

@@ -4,7 +4,7 @@ export const AGRICULTURAL_CATEGORIES = [
   {
     id: 'vegetables',
     name: 'Vegetables',
-    count: 124,
+    count: 142,
     icon: 'bi-egg',
     svgIcon: '🥬',
     image: 'https://images.unsplash.com/photo-1597362925123-77861d3fbac7?auto=format&fit=crop&w=400&q=80',
@@ -14,7 +14,7 @@ export const AGRICULTURAL_CATEGORIES = [
   {
     id: 'fruits',
     name: 'Fruits',
-    count: 98,
+    count: 110,
     icon: 'bi-apple',
     svgIcon: '🥭',
     image: 'https://images.unsplash.com/photo-1619566636858-adf3ef46400b?auto=format&fit=crop&w=400&q=80',
@@ -22,94 +22,124 @@ export const AGRICULTURAL_CATEGORIES = [
     popularCrops: ['Karutha Kolomban Mango', 'Papaya', 'Banana (Ambul/Kolikuttu)', 'Pineapple', 'Passion Fruit']
   },
   {
-    id: 'grains',
-    name: 'Grains',
-    count: 45,
+    id: 'rice',
+    name: 'Rice',
+    count: 68,
     icon: 'bi-slash-circle',
     svgIcon: '🌾',
     image: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=400&q=80',
-    description: 'Heritage heirloom rice, maize, millet, and staple cereal grains.',
-    popularCrops: ['Suwandel Rice', 'Kalu Heenati', 'Red Raw Rice', 'Corn / Maize', 'Kurakkan (Finger Millet)']
+    description: 'Heritage heirloom traditional rice varieties, raw rice, samba, and keeri samba.',
+    popularCrops: ['Suwandel Rice', 'Kalu Heenati', 'Red Raw Rice', 'Keeri Samba', 'Nadu Rice']
   },
   {
-    id: 'herbs-spices',
-    name: 'Herbs & Spices',
-    count: 56,
-    icon: 'bi-flower2',
+    id: 'tea',
+    name: 'Tea',
+    count: 45,
+    icon: 'bi-cup-hot',
+    svgIcon: '🍵',
+    image: 'https://images.unsplash.com/photo-1544787219-7f47ccb76574?auto=format&fit=crop&w=400&q=80',
+    description: 'Finest Ceylon single-estate highland black, green, and silver tips artisan tea.',
+    popularCrops: ['Ceylon Black Tea (BOPF)', 'Orange Pekoe', 'Green Tea', 'Silver Tips', 'Earl Grey']
+  },
+  {
+    id: 'spices',
+    name: 'Spices',
+    count: 82,
+    icon: 'bi-fire',
     svgIcon: '🌶️',
     image: 'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?auto=format&fit=crop&w=400&q=80',
-    description: 'World-renowned Ceylon spices and medicinal Ayurvedic herbs.',
-    popularCrops: ['Ceylon Cinnamon', 'Black Pepper', 'Cloves', 'Cardamom', 'Turmeric', 'Lemongrass']
+    description: 'World-renowned Ceylon true cinnamon, whole pepper, cloves, and cardamom.',
+    popularCrops: ['Ceylon True Cinnamon (Alba/C5)', 'Black Pepper', 'Cloves', 'Cardamom', 'Nutmeg', 'Mace']
   },
   {
-    id: 'leafy-greens',
-    name: 'Leafy Greens',
-    count: 67,
-    icon: 'bi-tree',
-    svgIcon: '🥦',
-    image: 'https://images.unsplash.com/photo-1622206151226-18ca2c9ab4a1?auto=format&fit=crop&w=400&q=80',
-    description: 'Freshly plucked nutritious greens, herbs, and salad leaves.',
-    popularCrops: ['Gotukola', 'Mukunuwenna', 'Iceberg Lettuce', 'Kangkung', 'Spinach', 'Kathurumurunga']
-  },
-  {
-    id: 'root-crops',
-    name: 'Root Crops',
-    count: 38,
-    icon: 'bi-inbox',
-    svgIcon: '🥔',
-    image: 'https://images.unsplash.com/photo-1518977676601-b53f82aba655?auto=format&fit=crop&w=400&q=80',
-    description: 'Starchy tubers and nutrient-rich highland and lowland roots.',
-    popularCrops: ['Nuwara Eliya Potatoes', 'Sweet Potatoes', 'Manioc (Cassava)', 'Innala', 'Kiri Ala']
-  },
-  {
-    id: 'legumes',
-    name: 'Legumes',
-    count: 42,
-    icon: 'bi-circle-square',
-    svgIcon: '🫘',
-    image: 'https://images.unsplash.com/photo-1515543237350-b3eea1ec8082?auto=format&fit=crop&w=400&q=80',
-    description: 'Protein-packed pulses, lentils, peas, and Sri Lankan field legumes.',
-    popularCrops: ['Green Gram (Mung Bean)', 'Cowpea', 'Chickpeas', 'Soya Beans', 'Winged Beans']
-  },
-  {
-    id: 'nuts-seeds',
-    name: 'Nuts & Seeds',
-    count: 29,
+    id: 'coconut-products',
+    name: 'Coconut products',
+    count: 53,
     icon: 'bi-shield-shaded',
-    svgIcon: '🥜',
+    svgIcon: '🥥',
     image: 'https://images.unsplash.com/photo-1508061253366-f7da158b6d46?auto=format&fit=crop&w=400&q=80',
-    description: 'Premium quality Ceylon cashews, coconuts, sesame, and agricultural seeds.',
-    popularCrops: ['Ceylon Cashew Nuts', 'King Coconut', 'Desiccated Coconut', 'White & Black Sesame', 'Moringa Seeds']
+    description: 'Fresh coconut, king coconut, virgin coconut oil, copra, and coconut coir.',
+    popularCrops: ['King Coconut (Thambili)', 'Fresh Husked Coconut', 'Virgin Coconut Oil', 'Desiccated Coconut', 'Coconut Milk']
   },
   {
-    id: 'mushrooms',
-    name: 'Mushrooms',
-    count: 18,
-    icon: 'bi-cloud-sun',
-    svgIcon: '🍄',
-    image: 'https://images.unsplash.com/photo-1504544750208-dc0358e63f7f?auto=format&fit=crop&w=400&q=80',
-    description: 'Locally cultivated organic oyster, button, and milky mushrooms.',
-    popularCrops: ['American Oyster', 'Bhutan Oyster', 'Milky Mushroom', 'Button Mushroom', 'Abalone']
+    id: 'herbs',
+    name: 'Herbs',
+    count: 64,
+    icon: 'bi-flower2',
+    svgIcon: '🌿',
+    image: 'https://images.unsplash.com/photo-1622206151226-18ca2c9ab4a1?auto=format&fit=crop&w=400&q=80',
+    description: 'Aromatic culinary herbs, medicinal Ayurvedic leaves, and fresh infusions.',
+    popularCrops: ['Gotukola', 'Lemongrass', 'Curry Leaves', 'Mint Leaves', 'Coriander', 'Rosemary', 'Thyme']
   },
   {
     id: 'flowers',
     name: 'Flowers',
-    count: 12,
+    count: 24,
     icon: 'bi-flower1',
     svgIcon: '🌻',
     image: 'https://images.unsplash.com/photo-1597848212624-a19eb35e2651?auto=format&fit=crop&w=400&q=80',
-    description: 'Commercial cut flowers, orchids, marigolds, and edible blossoms.',
-    popularCrops: ['Anthurium', 'Orchids', 'Marigold (Das Pethiya)', 'Lotus', 'Jasmine', 'Rose']
+    description: 'Fresh cut blooms, commercial orchids, anthuriums, and ceremonial garlands.',
+    popularCrops: ['Anthuriums', 'Orchids', 'Marigold (Das Pethiya)', 'Jasmine', 'Lotus', 'Roses']
   },
   {
-    id: 'other',
-    name: 'Other',
-    count: 21,
-    icon: 'bi-basket',
-    svgIcon: '🧺',
+    id: 'dairy-products',
+    name: 'Dairy products',
+    count: 36,
+    icon: 'bi-cup-straw',
+    svgIcon: '🥛',
+    image: 'https://images.unsplash.com/photo-1550583724-b2692b85b150?auto=format&fit=crop&w=400&q=80',
+    description: 'Fresh cow milk, buffalo curd in clay pots, ghee, artisan butter, and paneer.',
+    popularCrops: ['Fresh Cow Milk', 'Buffalo Clay Pot Curd (Meekiri)', 'Artisan Ghee', 'Fresh Paneer', 'Farm Butter']
+  },
+  {
+    id: 'eggs',
+    name: 'Eggs',
+    count: 29,
+    icon: 'bi-circle',
+    svgIcon: '🥚',
+    image: 'https://images.unsplash.com/photo-1516467508483-a7212febe31a?auto=format&fit=crop&w=400&q=80',
+    description: 'Free-range brown and white eggs, village country chicken eggs, and quail eggs.',
+    popularCrops: ['Free-Range Brown Eggs', 'Village Gam Biththara', 'Quail Eggs', 'Omega-3 Enriched Eggs']
+  },
+  {
+    id: 'poultry',
+    name: 'Poultry',
+    count: 31,
+    icon: 'bi-feather',
+    svgIcon: '🍗',
+    image: 'https://images.unsplash.com/photo-1587593810167-a84920ea0781?auto=format&fit=crop&w=400&q=80',
+    description: 'Farm-raised broiler, free-range country chicken, and duck fresh poultry.',
+    popularCrops: ['Farm Dressed Chicken', 'Free-Range Village Chicken', 'Chicken Drumsticks & Breast', 'Duck']
+  },
+  {
+    id: 'fish',
+    name: 'Fish',
+    count: 48,
+    icon: 'bi-water',
+    svgIcon: '🐟',
+    image: 'https://images.unsplash.com/photo-1534483509719-3feaee7c30da?auto=format&fit=crop&w=400&q=80',
+    description: 'Fresh inland freshwater reservoir fish and day-boat coastal seafood.',
+    popularCrops: ['Inland Tilapia (Thilapiya)', 'Lula', 'Modha (Barramundi)', 'Kelawalla (Yellowfin Tuna)', 'Prawns']
+  },
+  {
+    id: 'meat-products',
+    name: 'Meat products',
+    count: 22,
+    icon: 'bi-basket2',
+    svgIcon: '🥩',
+    image: 'https://images.unsplash.com/photo-1607623814075-e51df1bdc82f?auto=format&fit=crop&w=400&q=80',
+    description: 'Quality pasture-raised goat mutton, farm beef, and value-added cured cuts.',
+    popularCrops: ['Fresh Farm Mutton', 'Pasture Beef', 'Minced Meat', 'Farm Sausages']
+  },
+  {
+    id: 'organic-products',
+    name: 'Organic products',
+    count: 95,
+    icon: 'bi-patch-check-fill',
+    svgIcon: '🌱',
     image: 'https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=400&q=80',
-    description: 'Pure bee honey, kithul treacle, organic compost, and farm byproducts.',
-    popularCrops: ['Pure Bee Honey', 'Kithul Jaggery & Treacle', 'Organic Farm Compost', 'Biochar']
+    description: '100% Certified organic chemical-free pesticide-free farm produce with verification.',
+    popularCrops: ['Organic Mixed Greens', 'Organic Turmeric Powder', 'Zero-Chemical Heirloom Rice', 'Bio Compost']
   }
 ]
 

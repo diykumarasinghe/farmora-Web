@@ -49,6 +49,9 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/products/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/reviews/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/harvest/available/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/harvest/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/agri-info/**").permitAll()
                         .requestMatchers("/api/farm-profiles/my/**").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/farm-profiles/**").permitAll()
                         
@@ -65,6 +68,16 @@ public class SecurityConfig {
                         .requestMatchers("/api/orders/**").authenticated()
                         .requestMatchers("/api/deliveries/**").authenticated()
                         .requestMatchers("/api/notifications/**").authenticated()
+                        .requestMatchers("/api/pickups/**").authenticated()
+                        .requestMatchers("/api/payments/**").authenticated()
+                        .requestMatchers("/api/invoices/**").authenticated()
+                        .requestMatchers("/api/bulk-orders/**").authenticated()
+                        .requestMatchers("/api/harvest/**").authenticated()
+                        .requestMatchers("/api/messages/**").authenticated()
+                        .requestMatchers("/api/video-calls/**").authenticated()
+                        .requestMatchers("/api/complaints/**").authenticated()
+                        .requestMatchers("/api/analytics/**").authenticated()
+                        .requestMatchers("/api/agri-info/**").authenticated()
                         
                         // Any other request must be authenticated
                         .anyRequest().authenticated()

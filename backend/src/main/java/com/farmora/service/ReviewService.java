@@ -6,6 +6,7 @@ import com.farmora.exception.AccessDeniedCustomException;
 import com.farmora.exception.BusinessException;
 import com.farmora.exception.ResourceNotFoundException;
 import com.farmora.model.*;
+import com.farmora.repository.ProductRepository;
 import com.farmora.repository.ReviewRepository;
 import com.farmora.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -23,30 +24,46 @@ public class ReviewService {
     private final OrderService orderService;
     private final AuthService authService;
     private final UserRepository userRepository;
+    private final ProductRepository productRepository;
     private final NotificationService notificationService;
 
     @Transactional
     public ReviewResponse createReview(ReviewRequest request, String reviewerEmail) {
         User reviewer = authService.getUserByEmail(reviewerEmail);
-        Order order = orderService.getOrderEntity(request.getOrderId());
+        Order order = null;
+        Product product = null;
+        User targetUser = null;
 
-        if (!order.getBuyer().getId().equals(reviewer.getId())) {
-            throw new AccessDeniedCustomException("Only the buyer who purchased the order can submit a review.");
+        if (request.getOrderId() != null) {
+            order = orderService.getOrderEntity(request.getOrderId());
+            if (!order.getBuyer().getId().equals(reviewer.getId())) {
+                throw new AccessDeniedCustomException("Only the buyer who purchased the order can submit a review.");
+            }
+            if (order.getStatus() != OrderStatus.DELIVERED) {
+                throw new BusinessException("Reviews can only be submitted after the order has been delivered.");
+            }
+            if (reviewRepository.findByOrderAndReviewer(order, reviewer).isPresent()) {
+                throw new BusinessException("You have already reviewed this order.");
+            }
+            targetUser = order.getFarmer();
+            product = order.getProduct();
         }
 
-        if (order.getStatus() != OrderStatus.DELIVERED) {
-            throw new BusinessException("Reviews can only be submitted after the order has been delivered.");
+        if (request.getProductId() != null) {
+            product = productRepository.findById(request.getProductId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + request.getProductId()));
+            if (targetUser == null) {
+                targetUser = product.getFarmer();
+            }
         }
 
-        if (reviewRepository.findByOrderAndReviewer(order, reviewer).isPresent()) {
-            throw new BusinessException("You have already reviewed this order.");
+        if (order == null && product == null) {
+            throw new BusinessException("Either Order ID or Product ID must be specified for a review.");
         }
-
-        // Default target user is the farmer
-        User targetUser = order.getFarmer();
 
         Review review = Review.builder()
                 .order(order)
+                .product(product)
                 .reviewer(reviewer)
                 .targetUser(targetUser)
                 .rating(request.getRating())
@@ -55,14 +72,16 @@ public class ReviewService {
 
         Review saved = reviewRepository.save(review);
 
-        // Notify farmer
-        notificationService.createNotification(
-                targetUser,
-                "New Review Received!",
-                "Buyer " + reviewer.getFullName() + " left a " + request.getRating() + "-star review for order #" + order.getId() + ".",
-                "REVIEW_RECEIVED",
-                saved.getId()
-        );
+        // Notify target farmer
+        if (targetUser != null) {
+            notificationService.createNotification(
+                    targetUser,
+                    "New Review Received!",
+                    "Buyer " + reviewer.getFullName() + " left a " + request.getRating() + "-star review.",
+                    "REVIEW_RECEIVED",
+                    saved.getId()
+            );
+        }
 
         return mapToResponse(saved);
     }
@@ -75,11 +94,47 @@ public class ReviewService {
                 .collect(Collectors.toList());
     }
 
+    public List<ReviewResponse> getReviewsForProduct(Long productId) {
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + productId));
+        return reviewRepository.findByProductOrderByCreatedAtDesc(product).stream()
+                .map(this::mapToResponse)
+                .collect(Collectors.toList());
+    }
+
     public List<ReviewResponse> getMySubmittedReviews(String reviewerEmail) {
         User reviewer = authService.getUserByEmail(reviewerEmail);
         return reviewRepository.findByReviewerOrderByCreatedAtDesc(reviewer).stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public ReviewResponse updateReview(Long reviewId, ReviewRequest request, String reviewerEmail) {
+        Review review = reviewRepository.findById(reviewId)
+                .orElseThrow(() -> new ResourceNotFoundException("Review not found with id: " + reviewId));
+        User user = authService.getUserByEmail(reviewerEmail);
+
+        if (!review.getReviewer().getId().equals(user.getId()) && user.getRole() != Role.ADMIN) {
+            throw new AccessDeniedCustomException("You can only edit your own reviews.");
+        }
+
+        review.setRating(request.getRating());
+        review.setComment(request.getComment());
+        return mapToResponse(reviewRepository.save(review));
+    }
+
+    @Transactional
+    public void deleteReview(Long reviewId, String reviewerEmail) {
+        Review review = reviewRepository.findById(reviewId)
+                .orElseThrow(() -> new ResourceNotFoundException("Review not found with id: " + reviewId));
+        User user = authService.getUserByEmail(reviewerEmail);
+
+        if (!review.getReviewer().getId().equals(user.getId()) && user.getRole() != Role.ADMIN) {
+            throw new AccessDeniedCustomException("You can only delete your own reviews.");
+        }
+
+        reviewRepository.delete(review);
     }
 
     public com.farmora.dto.review.FarmerRatingSummaryDto getRatingSummaryForFarmer(Long farmerId) {
@@ -115,12 +170,15 @@ public class ReviewService {
     public ReviewResponse mapToResponse(Review review) {
         return ReviewResponse.builder()
                 .id(review.getId())
-                .orderId(review.getOrder().getId())
+                .orderId(review.getOrder() != null ? review.getOrder().getId() : null)
+                .productId(review.getProduct() != null ? review.getProduct().getId() : null)
+                .productName(review.getProduct() != null ? review.getProduct().getName() : (review.getOrder() != null && review.getOrder().getProduct() != null ? review.getOrder().getProduct().getName() : null))
                 .reviewer(authService.mapToUserResponse(review.getReviewer()))
                 .targetUser(review.getTargetUser() != null ? authService.mapToUserResponse(review.getTargetUser()) : null)
                 .rating(review.getRating())
                 .comment(review.getComment())
                 .createdAt(review.getCreatedAt())
+                .updatedAt(review.getUpdatedAt())
                 .build();
     }
 }

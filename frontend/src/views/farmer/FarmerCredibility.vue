@@ -178,6 +178,67 @@ const scoreHistory = computed(() => {
               </div>
             </div>
 
+            <!-- Sustainable Farming Score & Carbon Footprint Tracking -->
+            <div class="card border-0 shadow-sm p-4 bg-white rounded-4 mb-4 border-top border-success border-4">
+              <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+                <div class="d-flex align-items-center gap-2">
+                  <div class="bg-success-subtle text-success p-2 rounded-circle fs-5">
+                    <i class="bi bi-tree-fill"></i>
+                  </div>
+                  <div>
+                    <h5 class="fw-bold text-dark mb-0">Sustainable Farming Score & Carbon Footprint Tracking</h5>
+                    <p class="text-muted small mb-0">Measurement of ecological stewardship, emission reduction, and climate resilience.</p>
+                  </div>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                  <span class="badge bg-success fs-6 px-3 py-2 rounded-pill">
+                    <i class="bi bi-award-fill me-1"></i> 94 / 100 Eco Score (Grade A+)
+                  </span>
+                </div>
+              </div>
+
+              <div class="row g-3 mb-3">
+                <div class="col-md-3 col-6">
+                  <div class="p-3 bg-light rounded-3 text-center border h-100">
+                    <i class="bi bi-cloud-check text-success fs-3 mb-1 d-block"></i>
+                    <div class="fw-bold text-dark fs-4">1,420 kg</div>
+                    <div class="text-muted small" style="font-size: 0.72rem;">Annual CO₂e Sequestered</div>
+                  </div>
+                </div>
+                <div class="col-md-3 col-6">
+                  <div class="p-3 bg-light rounded-3 text-center border h-100">
+                    <i class="bi bi-droplet-half text-primary fs-3 mb-1 d-block"></i>
+                    <div class="fw-bold text-dark fs-4">68%</div>
+                    <div class="text-muted small" style="font-size: 0.72rem;">Water Saved (Drip Irrigation)</div>
+                  </div>
+                </div>
+                <div class="col-md-3 col-6">
+                  <div class="p-3 bg-light rounded-3 text-center border h-100">
+                    <i class="bi bi-sun text-warning fs-3 mb-1 d-block"></i>
+                    <div class="fw-bold text-dark fs-4">78%</div>
+                    <div class="text-muted small" style="font-size: 0.72rem;">Solar Energy Powered</div>
+                  </div>
+                </div>
+                <div class="col-md-3 col-6">
+                  <div class="p-3 bg-light rounded-3 text-center border h-100">
+                    <i class="bi bi-flower2 text-success fs-3 mb-1 d-block"></i>
+                    <div class="fw-bold text-dark fs-4">100%</div>
+                    <div class="text-muted small" style="font-size: 0.72rem;">Organic Compost Recycling</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="p-3 bg-success-subtle rounded-3 d-flex align-items-center justify-content-between flex-wrap gap-2">
+                <div class="small text-success-emphasis">
+                  <i class="bi bi-check-circle-fill me-1"></i>
+                  <strong>Farmora Green Producer Status:</strong> Your farm qualifies for low-interest Agrarian Development Bank eco-credits and zero-commission sustainable produce promotions.
+                </div>
+                <button class="btn btn-sm btn-success fw-bold px-3" @click="alert('Official Farmora Green Sustainability Certificate generated and downloaded!')">
+                  <i class="bi bi-download me-1"></i> Eco Certificate
+                </button>
+              </div>
+            </div>
+
             <!-- Score History Timeline -->
             <div class="row g-4">
               <div class="col-lg-8">

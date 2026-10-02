@@ -23,6 +23,8 @@ public class UserResponse {
     private com.farmora.model.BuyerType buyerType;
     private String businessName;
     private String businessRegNumber;
+    private String district;
+    private String preferredLanguage;
     private Boolean active;
     private LocalDateTime createdAt;
 }

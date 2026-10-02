@@ -5,6 +5,10 @@ import { productService } from '../../services/productService'
 import { bidService } from '../../services/bidService'
 import { useAuthStore } from '../../stores/auth'
 import LoadingSpinner from '../../components/common/LoadingSpinner.vue'
+import DirectBuyModal from '../../components/orders/DirectBuyModal.vue'
+import BulkOrderModal from '../../components/orders/BulkOrderModal.vue'
+import { reviewService } from '../../services/reviewService'
+import { analyticsService } from '../../services/analyticsService'
 import { SAMPLE_PRODUCTS } from '../../utils/agriculturalData'
 
 const route = useRoute()
@@ -17,6 +21,15 @@ const submittingBid = ref(false)
 const bidSuccess = ref(false)
 const errorMessage = ref('')
 const selectedTab = ref('overview')
+
+const showDirectBuyModal = ref(false)
+const showBulkOrderModal = ref(false)
+
+const reviews = ref([])
+const reviewModalShow = ref(false)
+const editingReviewId = ref(null)
+const newReview = ref({ rating: 5, comment: '' })
+const isSaved = ref(false)
 
 const bidForm = ref({
   amount: '',
@@ -47,7 +60,95 @@ onMounted(async () => {
     }
     loading.value = false
   }
+
+  // Load reviews
+  try {
+    reviews.value = await reviewService.getProductReviews(id)
+  } catch (e) {
+    reviews.value = []
+  }
+
+  // Check saved state
+  if (authStore.isAuthenticated && authStore.role === 'BUYER') {
+    try {
+      const savedList = await analyticsService.getSavedProducts()
+      isSaved.value = savedList.some(s => s.id === Number(id))
+    } catch (e) {}
+  }
 })
+
+const avgReviewScore = computed(() => {
+  if (!reviews.value || reviews.value.length === 0) return 4.8
+  const sum = reviews.value.reduce((acc, r) => acc + (r.rating || 5), 0)
+  return (sum / reviews.value.length).toFixed(1)
+})
+
+const handleToggleSave = async () => {
+  if (!authStore.isAuthenticated) {
+    router.push({ path: '/login', query: { redirect: route.fullPath } })
+    return
+  }
+  try {
+    if (isSaved.value) {
+      await analyticsService.removeSavedProduct(product.value.id)
+      isSaved.value = false
+    } else {
+      await analyticsService.saveProduct(product.value.id)
+      isSaved.value = true
+    }
+  } catch (e) {
+    console.error('Save toggle error', e)
+  }
+}
+
+const openReviewModal = (existing = null) => {
+  if (!authStore.isAuthenticated) {
+    router.push({ path: '/login', query: { redirect: route.fullPath } })
+    return
+  }
+  if (existing) {
+    editingReviewId.value = existing.id
+    newReview.value = { rating: existing.rating, comment: existing.comment }
+  } else {
+    editingReviewId.value = null
+    newReview.value = { rating: 5, comment: '' }
+  }
+  reviewModalShow.value = true
+}
+
+const handleSubmitReview = async () => {
+  if (!newReview.value.comment.trim()) return
+  try {
+    if (editingReviewId.value) {
+      const updated = await reviewService.updateReview(editingReviewId.value, {
+        rating: newReview.value.rating,
+        comment: newReview.value.comment
+      })
+      const idx = reviews.value.findIndex(r => r.id === editingReviewId.value)
+      if (idx !== -1) reviews.value[idx] = updated
+    } else {
+      const created = await reviewService.createReview({
+        productId: product.value.id,
+        rating: newReview.value.rating,
+        comment: newReview.value.comment
+      })
+      reviews.value.unshift(created)
+    }
+    reviewModalShow.value = false
+  } catch (err) {
+    alert(err.response?.data?.message || 'Failed to submit review.')
+  }
+}
+
+const handleDeleteReview = async (revId) => {
+  if (!confirm('Are you sure you want to delete your review?')) return
+  try {
+    await reviewService.deleteReview(revId)
+    reviews.value = reviews.value.filter(r => r.id !== revId)
+  } catch (e) {
+    console.error('Failed to delete review', e)
+  }
+}
 
 const isFreshToday = computed(() => {
   if (!product.value) return false
@@ -144,13 +245,16 @@ const handlePlaceBid = async () => {
                 <span>Fresh Today</span>
               </span>
 
-              <!-- Status Badge -->
-              <span
-                class="position-absolute top-0 end-0 m-3 badge px-3 py-2 rounded-pill shadow-sm fw-bold"
-                :class="product.status === 'AVAILABLE' ? 'bg-primary' : 'bg-secondary'"
+              <!-- Bookmark / Save Product Button -->
+              <button
+                class="position-absolute top-0 end-0 m-3 btn rounded-circle p-2 shadow-sm d-flex align-items-center justify-content-center"
+                :class="isSaved ? 'btn-danger' : 'btn-light text-muted'"
+                @click="handleToggleSave"
+                title="Save Produce"
+                style="z-index: 10; width: 38px; height: 38px;"
               >
-                {{ product.status }}
-              </span>
+                <i class="bi" :class="isSaved ? 'bi-heart-fill' : 'bi-heart'"></i>
+              </button>
             </div>
 
             <!-- Details Body -->
@@ -207,6 +311,22 @@ const handlePlaceBid = async () => {
                   <strong><i class="bi bi-calendar-event text-warning me-1"></i> Harvest Date:</strong>
                   {{ product.harvestDate || 'Harvested Fresh' }}
                 </div>
+                <div v-if="product.qualityGrade" class="col-sm-6">
+                  <strong><i class="bi bi-award text-warning me-1"></i> Quality Grade:</strong>
+                  {{ product.qualityGrade }}
+                </div>
+                <div v-if="product.packagingInfo" class="col-sm-6">
+                  <strong><i class="bi bi-box-seam text-secondary me-1"></i> Packaging:</strong>
+                  {{ product.packagingInfo }}
+                </div>
+                <div v-if="product.minOrderQuantity" class="col-sm-6">
+                  <strong><i class="bi bi-cart-check text-info me-1"></i> Min Order (MOQ):</strong>
+                  {{ product.minOrderQuantity }} {{ product.unit || 'kg' }}
+                </div>
+                <div v-if="product.farmingMethod" class="col-sm-6">
+                  <strong><i class="bi bi-flower1 text-success me-1"></i> Method:</strong>
+                  {{ product.farmingMethod }}
+                </div>
                 <div class="col-sm-6">
                   <strong><i class="bi bi-person-check text-success me-1"></i> Farmer / Producer:</strong>
                   <router-link
@@ -246,9 +366,36 @@ const handlePlaceBid = async () => {
               <i class="bi bi-tag-fill text-farmora-green"></i>
               <span>Purchase or Bid</span>
             </h4>
-            <p class="small text-muted mb-4">
-              Place a direct purchase request or offer a competitive bid. The farmer will be notified immediately.
+            <p class="small text-muted mb-3">
+              Place a direct purchase request, order wholesale in bulk, or submit a competitive bid.
             </p>
+
+            <!-- Direct Buy & Bulk Order Primary Buttons -->
+            <div class="d-flex gap-2 mb-3">
+              <button
+                type="button"
+                class="btn btn-farmora flex-fill fw-bold py-2 shadow-sm"
+                @click="showDirectBuyModal = true"
+                :disabled="product.status !== 'AVAILABLE'"
+              >
+                <i class="bi bi-lightning-charge-fill me-1"></i> Buy Now (Direct)
+              </button>
+              <button
+                type="button"
+                class="btn btn-outline-success fw-bold py-2 px-3"
+                @click="showBulkOrderModal = true"
+                title="Wholesale B2B Bulk Order"
+              >
+                <i class="bi bi-box-seam me-1"></i> Bulk Order
+              </button>
+            </div>
+
+            <div class="position-relative text-center my-3">
+              <hr class="text-muted opacity-25">
+              <span class="position-absolute top-50 start-50 translate-middle bg-white px-3 small text-muted fw-semibold">
+                OR NEGOTIATE / BID
+              </span>
+            </div>
 
             <!-- Success Alert -->
             <div v-if="bidSuccess" class="alert alert-success rounded-3 p-3" role="alert">
@@ -357,6 +504,219 @@ const handlePlaceBid = async () => {
         </div>
       </div>
     </div>
+
+    <!-- Rating & Reviews Section -->
+    <div class="card border-0 shadow-sm rounded-4 p-4 mt-4 mb-5 bg-white">
+      <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3 border-bottom pb-3">
+        <div>
+          <h4 class="fw-bold text-dark mb-1 d-flex align-items-center gap-2">
+            <i class="bi bi-star-fill text-warning"></i>
+            <span>Ratings & Verified Reviews</span>
+          </h4>
+          <p class="text-muted small mb-0">Direct customer experiences and crop quality feedback.</p>
+        </div>
+        <div class="d-flex align-items-center gap-3">
+          <div class="text-end">
+            <span class="fs-4 fw-bold text-dark">{{ avgReviewScore }}</span>
+            <span class="text-muted small"> / 5.0</span>
+            <div class="text-warning small">
+              <i
+                v-for="s in 5"
+                :key="s"
+                class="bi"
+                :class="s <= Math.round(avgReviewScore) ? 'bi-star-fill' : 'bi-star'"
+              ></i>
+            </div>
+            <div class="text-muted" style="font-size: 0.75rem;">({{ reviews.length }} reviews)</div>
+          </div>
+          <button
+            v-if="authStore.user?.role === 'BUYER' && !userReview"
+            class="btn btn-outline-success fw-semibold btn-sm px-3 rounded-pill"
+            @click="openReviewModal()"
+          >
+            <i class="bi bi-pencil-square me-1"></i> Write a Review
+          </button>
+        </div>
+      </div>
+
+      <!-- User's own review if already submitted -->
+      <div v-if="userReview" class="p-3 bg-light-green rounded-3 border border-success-subtle mb-4">
+        <div class="d-flex justify-content-between align-items-start">
+          <div>
+            <span class="badge bg-success text-white mb-2">Your Review</span>
+            <div class="text-warning mb-1">
+              <i
+                v-for="s in 5"
+                :key="s"
+                class="bi"
+                :class="s <= userReview.rating ? 'bi-star-fill' : 'bi-star'"
+              ></i>
+              <span class="fw-bold ms-2 text-dark">{{ userReview.rating }}.0</span>
+            </div>
+            <p class="text-dark mb-1">{{ userReview.comment }}</p>
+            <small class="text-muted">
+              {{ new Date(userReview.createdAt).toLocaleDateString() }}
+            </small>
+          </div>
+          <div class="d-flex gap-2">
+            <button
+              class="btn btn-sm btn-outline-secondary rounded-pill px-2 py-1"
+              @click="openReviewModal(userReview)"
+              title="Edit review"
+            >
+              <i class="bi bi-pencil"></i> Edit
+            </button>
+            <button
+              class="btn btn-sm btn-outline-danger rounded-pill px-2 py-1"
+              @click="handleDeleteReview(userReview.id)"
+              title="Delete review"
+            >
+              <i class="bi bi-trash"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Other Reviews List -->
+      <div v-if="reviews.length > 0" class="row g-3">
+        <div
+          v-for="rev in reviews.filter(r => !userReview || r.id !== userReview.id)"
+          :key="rev.id"
+          class="col-md-6"
+        >
+          <div class="card h-100 border rounded-3 p-3 bg-light bg-opacity-50">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+              <div class="d-flex align-items-center gap-2">
+                <div class="bg-success-subtle text-success rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width: 36px; height: 36px; font-size: 0.85rem;">
+                  {{ rev.buyerName ? rev.buyerName.charAt(0).toUpperCase() : 'B' }}
+                </div>
+                <div>
+                  <h6 class="fw-bold mb-0 text-dark" style="font-size: 0.95rem;">
+                    {{ rev.buyerName || 'Verified Buyer' }}
+                  </h6>
+                  <small class="text-muted" style="font-size: 0.75rem;">
+                    {{ new Date(rev.createdAt).toLocaleDateString() }}
+                  </small>
+                </div>
+              </div>
+              <div class="text-warning small">
+                <i
+                  v-for="s in 5"
+                  :key="s"
+                  class="bi"
+                  :class="s <= rev.rating ? 'bi-star-fill' : 'bi-star'"
+                ></i>
+              </div>
+            </div>
+            <p class="text-muted small mb-0">{{ rev.comment }}</p>
+          </div>
+        </div>
+      </div>
+
+      <div v-else-if="!userReview" class="text-center py-4 text-muted">
+        <i class="bi bi-chat-heart fs-1 text-muted opacity-50 d-block mb-2"></i>
+        <p class="mb-2">No reviews yet for this harvest. Be the first to share your thoughts!</p>
+        <button
+          v-if="authStore.user?.role === 'BUYER'"
+          class="btn btn-sm btn-farmora px-4 rounded-pill"
+          @click="openReviewModal()"
+        >
+          Add Review
+        </button>
+      </div>
+    </div>
+
+    <!-- Review Modal -->
+    <div
+      v-if="reviewModalShow"
+      class="modal fade show d-block"
+      tabindex="-1"
+      style="background: rgba(0,0,0,0.5); z-index: 1060;"
+    >
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded-4 border-0 shadow">
+          <div class="modal-header border-0 pb-0">
+            <h5 class="modal-title fw-bold text-dark">
+              {{ editingReviewId ? 'Edit Your Review' : 'Write a Product Review' }}
+            </h5>
+            <button
+              type="button"
+              class="btn-close"
+              @click="reviewModalShow = false"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <p class="text-muted small mb-3">
+              Rate your satisfaction with produce quality, packaging, and freshness.
+            </p>
+            <div class="mb-3 text-center">
+              <label class="form-label d-block fw-semibold text-muted small">Select Rating</label>
+              <div class="d-inline-flex gap-2 p-2 bg-light rounded-pill border">
+                <i
+                  v-for="star in 5"
+                  :key="star"
+                  class="bi fs-4 cursor-pointer"
+                  :class="star <= newReview.rating ? 'bi-star-fill text-warning' : 'bi-star text-muted'"
+                  @click="newReview.rating = star"
+                  style="cursor: pointer;"
+                ></i>
+              </div>
+              <div class="small fw-semibold text-dark mt-1">
+                {{ newReview.rating === 5 ? '5 Stars - Outstanding Quality' :
+                   newReview.rating === 4 ? '4 Stars - Great Produce' :
+                   newReview.rating === 3 ? '3 Stars - Satisfactory' :
+                   newReview.rating === 2 ? '2 Stars - Below Expectation' :
+                   '1 Star - Poor Quality' }}
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label fw-semibold small text-muted">Review & Feedback</label>
+              <textarea
+                class="form-control rounded-3"
+                rows="4"
+                v-model="newReview.comment"
+                placeholder="Describe freshness, aroma, packing quality, or taste..."
+                required
+              ></textarea>
+            </div>
+          </div>
+          <div class="modal-footer border-0 pt-0">
+            <button
+              type="button"
+              class="btn btn-light rounded-pill px-3"
+              @click="reviewModalShow = false"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              class="btn btn-farmora rounded-pill px-4"
+              :disabled="!newReview.comment.trim()"
+              @click="handleSubmitReview"
+            >
+              {{ editingReviewId ? 'Save Changes' : 'Submit Review' }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Direct Buy Modal -->
+    <DirectBuyModal
+      v-if="product"
+      :show="showDirectBuyModal"
+      :product="product"
+      @close="showDirectBuyModal = false"
+    />
+
+    <!-- Wholesale Bulk Order Modal -->
+    <BulkOrderModal
+      v-if="product"
+      :show="showBulkOrderModal"
+      :product="product"
+      @close="showBulkOrderModal = false"
+    />
   </div>
 </template>
 

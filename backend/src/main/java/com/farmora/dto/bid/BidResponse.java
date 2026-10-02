@@ -24,6 +24,12 @@ public class BidResponse {
     private BigDecimal totalOffer;
     private BidStatus status;
     private String note;
+    private BigDecimal counterAmount;
+    private String counterNote;
+    private String counterBy;
+    private LocalDateTime expiresAt;
+    private Boolean archived;
+    private Boolean isExpired;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

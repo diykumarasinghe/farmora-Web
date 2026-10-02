@@ -24,6 +24,9 @@ public class Order {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(length = 50, unique = true)
+    private String orderNumber;
+
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "bid_id")
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
@@ -64,11 +67,29 @@ public class Order {
     @Column(nullable = false, length = 30)
     private OrderStatus status = OrderStatus.CONFIRMED;
 
+    @Builder.Default
+    @Column(length = 20)
+    private String fulfillmentType = "DELIVERY"; // DELIVERY or PICKUP
+
+    @Builder.Default
+    @Column(length = 30)
+    private String paymentStatus = "UNPAID"; // UNPAID, PAID, REFUNDED, CANCELLED
+
+    @Builder.Default
+    @Column(length = 30)
+    private String paymentMethod = "CARD"; // CARD, BANK_TRANSFER, CASH_ON_DELIVERY, WALLET
+
     @Column(length = 255)
     private String deliveryAddress;
 
     @Column(length = 255)
     private String pickupAddress;
+
+    @Column(length = 500)
+    private String cancellationReason;
+
+    @Column(length = 500)
+    private String notes;
 
     @CreationTimestamp
     @Column(nullable = false, updatable = false)

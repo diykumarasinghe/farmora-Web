@@ -15,9 +15,12 @@ import java.time.LocalDateTime;
 public class ReviewResponse {
     private Long id;
     private Long orderId;
+    private Long productId;
+    private String productName;
     private UserResponse reviewer;
     private UserResponse targetUser;
     private Integer rating;
     private String comment;
     private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 }

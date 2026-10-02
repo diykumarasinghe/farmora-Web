@@ -46,4 +46,12 @@ public class ProductRequest {
     private LocalDate harvestDate;
 
     private String imageUrl;
+    private String videoUrl;
+    private LocalDate expiryDate;
+    private String farmingMethod;
+    private String qualityGrade;
+    private String packagingInfo;
+    private BigDecimal minOrderQuantity;
+    private BigDecimal wholesalePrice;
+    private Boolean bulkOrderAvailable;
 }

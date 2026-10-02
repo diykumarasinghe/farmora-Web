@@ -70,15 +70,15 @@ const handleLogin = async () => {
 
           <form @submit.prevent="handleLogin">
             <div class="mb-3">
-              <label for="email" class="form-label small fw-semibold">Email Address</label>
+              <label for="email" class="form-label small fw-semibold">Email Address or Mobile Number</label>
               <div class="input-group">
-                <span class="input-group-text bg-light"><i class="bi bi-envelope"></i></span>
+                <span class="input-group-text bg-light"><i class="bi bi-person-badge"></i></span>
                 <input
-                  type="email"
+                  type="text"
                   id="email"
                   v-model="email"
                   class="form-control"
-                  placeholder="e.g. farmer@example.com"
+                  placeholder="e.g. 077 123 4567 or farmer@example.com"
                   required
                 />
               </div>

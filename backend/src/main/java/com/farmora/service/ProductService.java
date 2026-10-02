@@ -17,6 +17,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -90,6 +91,14 @@ public class ProductService {
                 .location(request.getLocation() != null ? request.getLocation().trim() : farmer.getAddress())
                 .harvestDate(request.getHarvestDate())
                 .imageUrl(request.getImageUrl())
+                .videoUrl(request.getVideoUrl())
+                .expiryDate(request.getExpiryDate())
+                .farmingMethod(request.getFarmingMethod() != null ? request.getFarmingMethod() : "Organic")
+                .qualityGrade(request.getQualityGrade() != null ? request.getQualityGrade() : "Grade A")
+                .packagingInfo(request.getPackagingInfo())
+                .minOrderQuantity(request.getMinOrderQuantity() != null ? request.getMinOrderQuantity() : BigDecimal.ONE)
+                .wholesalePrice(request.getWholesalePrice())
+                .bulkOrderAvailable(request.getBulkOrderAvailable() != null ? request.getBulkOrderAvailable() : true)
                 .status(ProductStatus.AVAILABLE)
                 .farmer(farmer)
                 .build();
@@ -121,6 +130,30 @@ public class ProductService {
         product.setHarvestDate(request.getHarvestDate());
         if (request.getImageUrl() != null && !request.getImageUrl().trim().isEmpty()) {
             product.setImageUrl(request.getImageUrl().trim());
+        }
+        if (request.getVideoUrl() != null) {
+            product.setVideoUrl(request.getVideoUrl().trim());
+        }
+        if (request.getExpiryDate() != null) {
+            product.setExpiryDate(request.getExpiryDate());
+        }
+        if (request.getFarmingMethod() != null) {
+            product.setFarmingMethod(request.getFarmingMethod().trim());
+        }
+        if (request.getQualityGrade() != null) {
+            product.setQualityGrade(request.getQualityGrade().trim());
+        }
+        if (request.getPackagingInfo() != null) {
+            product.setPackagingInfo(request.getPackagingInfo().trim());
+        }
+        if (request.getMinOrderQuantity() != null) {
+            product.setMinOrderQuantity(request.getMinOrderQuantity());
+        }
+        if (request.getWholesalePrice() != null) {
+            product.setWholesalePrice(request.getWholesalePrice());
+        }
+        if (request.getBulkOrderAvailable() != null) {
+            product.setBulkOrderAvailable(request.getBulkOrderAvailable());
         }
 
         Product updated = productRepository.save(product);
@@ -181,6 +214,14 @@ public class ProductService {
                 .location(product.getLocation())
                 .harvestDate(product.getHarvestDate())
                 .imageUrl(product.getImageUrl())
+                .videoUrl(product.getVideoUrl())
+                .expiryDate(product.getExpiryDate())
+                .farmingMethod(product.getFarmingMethod())
+                .qualityGrade(product.getQualityGrade())
+                .packagingInfo(product.getPackagingInfo())
+                .minOrderQuantity(product.getMinOrderQuantity())
+                .wholesalePrice(product.getWholesalePrice())
+                .bulkOrderAvailable(product.getBulkOrderAvailable())
                 .status(product.getStatus())
                 .farmer(authService.mapToUserResponse(product.getFarmer()))
                 .createdAt(product.getCreatedAt())

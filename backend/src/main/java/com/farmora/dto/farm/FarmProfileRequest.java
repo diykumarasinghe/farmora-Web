@@ -1,7 +1,6 @@
 package com.farmora.dto.farm;
 
 import com.farmora.model.FarmingMethod;
-import com.farmora.model.VerificationStatus;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -56,6 +55,23 @@ public class FarmProfileRequest {
     private Boolean isArchived;
     private String archivedSections;
 
-    // Certifications
+    // Certifications & Verification
     private String certifications;
+    private String nicDocumentUrl;
+
+    // Personal & Language
+    private String languagesSpoken;
+
+    // Farm Category
+    private String farmCategory;
+
+    // Delivery Options
+    private Boolean pickupAvailable;
+    private Boolean homeDeliveryAvailable;
+    private Double deliveryRadius;
+    private Double deliveryFee;
+
+    // Payment Details
+    private String bankAccount;
+    private String mobileWallet;
 }

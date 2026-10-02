@@ -37,7 +37,7 @@ public class Bid {
     @NotNull(message = "Bid unit price amount is required")
     @DecimalMin(value = "0.01", message = "Bid amount must be greater than 0")
     @Column(nullable = false, precision = 12, scale = 2)
-    private BigDecimal amount; // Price per unit or total offer
+    private BigDecimal amount; // Price per unit
 
     @NotNull(message = "Bid quantity is required")
     @DecimalMin(value = "0.01", message = "Bid quantity must be greater than 0")
@@ -51,6 +51,23 @@ public class Bid {
 
     @Column(length = 255)
     private String note;
+
+    // Counter offer fields
+    @Column(precision = 12, scale = 2)
+    private BigDecimal counterAmount;
+
+    @Column(length = 255)
+    private String counterNote;
+
+    @Column(length = 20)
+    private String counterBy; // "FARMER" or "BUYER"
+
+    @Column
+    private LocalDateTime expiresAt;
+
+    @Builder.Default
+    @Column(nullable = false)
+    private Boolean archived = false;
 
     @CreationTimestamp
     @Column(nullable = false, updatable = false)

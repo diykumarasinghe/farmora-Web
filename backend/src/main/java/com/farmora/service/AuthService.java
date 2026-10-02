@@ -33,6 +33,7 @@ public class AuthService {
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
     private final UserDetailsService userDetailsService;
+    private final com.farmora.repository.FarmProfileRepository farmProfileRepository;
 
     @Transactional
     public AuthResponse register(RegisterRequest request) {
@@ -40,17 +41,37 @@ public class AuthService {
             throw new BusinessException("Public registration as ADMIN is not allowed.");
         }
 
-        if (userRepository.existsByEmail(request.getEmail().trim().toLowerCase())) {
-            throw new BusinessException("An account with this email already exists.");
+        String rawPhone = request.getPhone() != null ? request.getPhone().trim() : "";
+        if (rawPhone.isEmpty()) {
+            throw new BusinessException("Mobile number is required for registration.");
+        }
+        String cleanPhone = rawPhone.replaceAll("[^0-9+]", "");
+        if (userRepository.existsByPhone(cleanPhone)) {
+            throw new BusinessException("An account with this mobile number already exists.");
+        }
+
+        String email;
+        if (request.getEmail() != null && !request.getEmail().trim().isEmpty()) {
+            email = request.getEmail().trim().toLowerCase();
+            if (userRepository.existsByEmail(email)) {
+                throw new BusinessException("An account with this email already exists.");
+            }
+        } else {
+            String numOnly = cleanPhone.replaceAll("[^0-9]", "");
+            email = numOnly + "@farmora.lk";
+            if (userRepository.existsByEmail(email)) {
+                email = numOnly + "_" + System.currentTimeMillis() + "@farmora.lk";
+            }
         }
 
         User user = User.builder()
                 .fullName(request.getFullName().trim())
-                .email(request.getEmail().trim().toLowerCase())
-                .phone(request.getPhone() != null ? request.getPhone().trim() : null)
+                .email(email)
+                .phone(cleanPhone)
                 .password(passwordEncoder.encode(request.getPassword()))
                 .role(request.getRole())
-                .address(request.getAddress() != null ? request.getAddress().trim() : null)
+                .district(request.getDistrict() != null ? request.getDistrict().trim() : null)
+                .address(request.getAddress() != null ? request.getAddress().trim() : request.getDistrict())
                 .buyerType(request.getBuyerType())
                 .businessName(request.getBusinessName() != null ? request.getBusinessName().trim() : null)
                 .businessRegNumber(request.getBusinessRegNumber() != null ? request.getBusinessRegNumber().trim() : null)
@@ -58,6 +79,24 @@ public class AuthService {
                 .build();
 
         User savedUser = userRepository.save(user);
+
+        // If Farmer, automatically create their initial FarmProfile
+        if (savedUser.getRole() == Role.FARMER) {
+            String farmName = request.getFarmName() != null && !request.getFarmName().trim().isEmpty()
+                    ? request.getFarmName().trim()
+                    : (savedUser.getFullName() + "'s Farm");
+            com.farmora.model.FarmProfile farmProfile = com.farmora.model.FarmProfile.builder()
+                    .farmer(savedUser)
+                    .farmName(farmName)
+                    .district(request.getDistrict() != null ? request.getDistrict().trim() : "Colombo")
+                    .farmAddress(request.getAddress() != null ? request.getAddress().trim() : (request.getDistrict() != null ? request.getDistrict().trim() : "Sri Lanka"))
+                    .contactPhone(cleanPhone)
+                    .contactEmail(email)
+                    .farmingMethod(com.farmora.model.FarmingMethod.ORGANIC)
+                    .verificationStatus(com.farmora.model.VerificationStatus.UNVERIFIED)
+                    .build();
+            farmProfileRepository.save(farmProfile);
+        }
 
         UserDetails userDetails = userDetailsService.loadUserByUsername(savedUser.getEmail());
         Map<String, Object> extraClaims = new HashMap<>();
@@ -72,14 +111,17 @@ public class AuthService {
     }
 
     public AuthResponse login(LoginRequest request) {
-        String email = request.getEmail().trim().toLowerCase();
+        String input = request.getEmail().trim();
+        String cleanPhone = input.replaceAll("[^0-9+]", "");
+
+        User user = userRepository.findByEmail(input.toLowerCase())
+                .or(() -> userRepository.findByPhone(input))
+                .or(() -> !cleanPhone.isEmpty() ? userRepository.findByPhone(cleanPhone) : java.util.Optional.empty())
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with credentials: " + input));
 
         authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(email, request.getPassword())
+                new UsernamePasswordAuthenticationToken(user.getEmail(), request.getPassword())
         );
-
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + email));
 
         if (!user.getActive()) {
             throw new BusinessException("Your account has been deactivated. Please contact support.");
@@ -127,6 +169,12 @@ public class AuthService {
         if (request.getBusinessRegNumber() != null) {
             user.setBusinessRegNumber(request.getBusinessRegNumber().trim());
         }
+        if (request.getDistrict() != null) {
+            user.setDistrict(request.getDistrict().trim());
+        }
+        if (request.getPreferredLanguage() != null) {
+            user.setPreferredLanguage(request.getPreferredLanguage().trim());
+        }
 
         User updated = userRepository.save(user);
         return mapToUserResponse(updated);
@@ -158,6 +206,8 @@ public class AuthService {
                 .phone(user.getPhone())
                 .role(user.getRole())
                 .address(user.getAddress())
+                .district(user.getDistrict())
+                .preferredLanguage(user.getPreferredLanguage())
                 .profileImageUrl(user.getProfileImageUrl())
                 .buyerType(user.getBuyerType())
                 .businessName(user.getBusinessName())

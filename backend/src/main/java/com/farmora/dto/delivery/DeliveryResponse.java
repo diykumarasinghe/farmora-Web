@@ -8,6 +8,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Data
@@ -22,6 +23,12 @@ public class DeliveryResponse {
     private String deliveryAddress;
     private DeliveryStatus status;
     private String trackingNotes;
+    private String recipientPhone;
+    private String specialInstructions;
+    private Double currentLat;
+    private Double currentLng;
+    private String estimatedDeliveryTime;
+    private BigDecimal deliveryFee;
     private LocalDateTime assignedAt;
     private LocalDateTime pickedUpAt;
     private LocalDateTime deliveredAt;

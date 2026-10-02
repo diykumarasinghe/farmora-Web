@@ -14,4 +14,6 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     List<Review> findByTargetUserOrderByCreatedAtDesc(User targetUser);
     List<Review> findByReviewerOrderByCreatedAtDesc(User reviewer);
     Optional<Review> findByOrderAndReviewer(Order order, User reviewer);
+    List<Review> findByProductOrderByCreatedAtDesc(com.farmora.model.Product product);
+    Optional<Review> findByProductAndReviewer(com.farmora.model.Product product, User reviewer);
 }

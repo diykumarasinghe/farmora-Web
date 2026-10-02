@@ -4,6 +4,7 @@ import DashboardSidebar from '../../components/common/DashboardSidebar.vue'
 import LoadingSpinner from '../../components/common/LoadingSpinner.vue'
 import EmptyState from '../../components/common/EmptyState.vue'
 import { productService } from '../../services/productService'
+import { harvestService } from '../../services/harvestService'
 import { AGRICULTURAL_CATEGORIES, SAMPLE_PRODUCTS } from '../../utils/agriculturalData'
 import { useAuthStore } from '../../stores/auth'
 
@@ -15,6 +16,7 @@ const loading = ref(true)
 const posting = ref(false)
 const message = ref('')
 const activeFilter = ref('today') // 'today' | 'all'
+const analytics = ref(null)
 
 const categories = AGRICULTURAL_CATEGORIES.map(c => c.name)
 const todayStr = new Date().toISOString().split('T')[0]
@@ -39,17 +41,30 @@ const loadHarvests = async () => {
   loading.value = true
   try {
     let prods = []
-    if (isFarmer.value) {
-      prods = await productService.getFarmerProducts()
-    } else {
+    if (isFarmer.value && authStore.user?.id) {
+      const [fHarvests, fAnalytics] = await Promise.all([
+        harvestService.getFarmerAllPosts(authStore.user.id).catch(() => []),
+        harvestService.getHarvestAnalytics(authStore.user.id).catch(() => null)
+      ])
+      prods = fHarvests
+      analytics.value = fAnalytics
+    }
+    if (!prods || prods.length === 0) {
+      prods = await harvestService.getAvailableNow().catch(() => [])
+    }
+    if (!prods || prods.length === 0) {
       const data = await productService.getProducts()
       prods = data.content || []
     }
 
     if (prods && prods.length > 0) {
-      harvestListings.value = prods
+      harvestListings.value = prods.map(p => ({
+        ...p,
+        name: p.name || p.cropName,
+        price: p.price || p.pricePerUnit,
+        isFreshToday: p.harvestDate === todayStr || p.freshnessIndicator === 'Picked Today' || p.isFreshToday
+      }))
     } else {
-      // Use sample crops marked fresh
       harvestListings.value = SAMPLE_PRODUCTS.map(p => ({
         ...p,
         isFreshToday: p.harvestDate === todayStr || p.isFreshToday
@@ -79,9 +94,11 @@ const handleQuickPost = async () => {
   message.value = ''
   try {
     const payload = {
+      cropName: quickForm.value.name,
       name: quickForm.value.name,
       description: 'Fresh daily harvest picked this morning for immediate fulfillment.',
       category: quickForm.value.category,
+      pricePerUnit: parseFloat(quickForm.value.price),
       price: parseFloat(quickForm.value.price),
       quantity: parseFloat(quickForm.value.quantity),
       unit: quickForm.value.unit,
@@ -90,8 +107,19 @@ const handleQuickPost = async () => {
       imageUrl: quickForm.value.imageUrl || 'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?auto=format&fit=crop&w=600&q=80'
     }
 
-    const created = await productService.createProduct(payload)
-    harvestListings.value.unshift({ ...created, isFreshToday: true })
+    let created
+    try {
+      created = await harvestService.postDailyHarvest(payload)
+    } catch (e) {
+      created = await productService.createProduct(payload)
+    }
+
+    harvestListings.value.unshift({
+      ...created,
+      name: created.name || created.cropName,
+      price: created.price || created.pricePerUnit,
+      isFreshToday: true
+    })
     message.value = `Successfully published today's harvest of ${quickForm.value.name}!`
     showQuickPostModal.value = false
     quickForm.value = {
@@ -122,8 +150,9 @@ const handleUpdateQuantity = async () => {
     const newQty = parseFloat(updateQtyVal.value)
     editingProduct.value.quantity = newQty
     
-    // Call backend update if available
     try {
+      await harvestService.updateQuantity(editingProduct.value.id, newQty)
+    } catch (e) {
       await productService.updateProduct(editingProduct.value.id, {
         name: editingProduct.value.name,
         price: editingProduct.value.price,
@@ -132,8 +161,6 @@ const handleUpdateQuantity = async () => {
         category: editingProduct.value.category,
         location: editingProduct.value.location
       })
-    } catch (e) {
-      console.warn('Backend update quantity sync', e)
     }
 
     message.value = `Updated inventory for ${editingProduct.value.name} to ${newQty} ${editingProduct.value.unit}.`
@@ -146,11 +173,11 @@ const handleUpdateQuantity = async () => {
 const handleArchive = async (item) => {
   if (confirm(`Archive harvest listing for ${item.name}?`)) {
     try {
-      await productService.archiveProduct(item.id)
+      await harvestService.archiveHarvest(item.id).catch(() => productService.archiveProduct(item.id))
       harvestListings.value = harvestListings.value.filter(p => p.id !== item.id)
-      message.value = `Listing for ${item.name} has been archived.`
+      message.value = `Archived ${item.name} harvest listing.`
     } catch (err) {
-      alert(err.response?.data?.message || 'Failed to archive listing')
+      console.error(err)
     }
   }
 }

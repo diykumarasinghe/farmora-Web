@@ -1,18 +1,18 @@
 package com.farmora.controller;
 
 import com.farmora.dto.auth.UserResponse;
+import com.farmora.dto.complaint.ComplaintResponse;
+import com.farmora.dto.farm.FarmProfileResponse;
 import com.farmora.dto.order.OrderResponse;
+import com.farmora.dto.payment.PaymentResponse;
 import com.farmora.dto.product.ProductResponse;
-import com.farmora.model.Product;
-import com.farmora.model.ProductStatus;
-import com.farmora.model.User;
+import com.farmora.model.*;
 import com.farmora.repository.BidRepository;
 import com.farmora.repository.OrderRepository;
+import com.farmora.repository.PaymentRepository;
 import com.farmora.repository.ProductRepository;
 import com.farmora.repository.UserRepository;
-import com.farmora.service.AuthService;
-import com.farmora.service.OrderService;
-import com.farmora.service.ProductService;
+import com.farmora.service.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -34,9 +34,13 @@ public class AdminController {
     private final ProductRepository productRepository;
     private final OrderRepository orderRepository;
     private final BidRepository bidRepository;
+    private final PaymentRepository paymentRepository;
     private final AuthService authService;
     private final ProductService productService;
     private final OrderService orderService;
+    private final PaymentService paymentService;
+    private final FarmProfileService farmProfileService;
+    private final ComplaintService complaintService;
 
     @GetMapping("/stats")
     public ResponseEntity<Map<String, Object>> getAdminStats() {
@@ -101,5 +105,51 @@ public class AdminController {
                 .map(orderService::mapToOrderResponse)
                 .collect(Collectors.toList());
         return ResponseEntity.ok(orders);
+    }
+
+    // Farmer verification management
+    @GetMapping("/verifications")
+    public ResponseEntity<List<FarmProfileResponse>> getPendingVerifications() {
+        return ResponseEntity.ok(farmProfileService.getFarms(null, null, null, null));
+    }
+
+    @PutMapping("/verifications/{id}/approve")
+    public ResponseEntity<FarmProfileResponse> approveFarmerVerification(
+            @PathVariable Long id,
+            @RequestParam(required = false, defaultValue = "Profile approved by Platform Admin") String notes
+    ) {
+        return ResponseEntity.ok(farmProfileService.adminUpdateVerificationStatus(id, VerificationStatus.VERIFIED, notes));
+    }
+
+    @PutMapping("/verifications/{id}/reject")
+    public ResponseEntity<FarmProfileResponse> rejectFarmerVerification(
+            @PathVariable Long id,
+            @RequestParam(required = false, defaultValue = "Documentation does not meet verification requirements.") String notes
+    ) {
+        return ResponseEntity.ok(farmProfileService.adminUpdateVerificationStatus(id, VerificationStatus.REJECTED, notes));
+    }
+
+    // Transactions monitoring
+    @GetMapping("/transactions")
+    public ResponseEntity<List<PaymentResponse>> getAllTransactions() {
+        List<PaymentResponse> payments = paymentRepository.findAllByOrderByCreatedAtDesc().stream()
+                .map(paymentService::mapToResponse)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(payments);
+    }
+
+    // Complaints / Reports management
+    @GetMapping("/complaints")
+    public ResponseEntity<List<ComplaintResponse>> getAllComplaints() {
+        return ResponseEntity.ok(complaintService.getAllComplaints());
+    }
+
+    @PutMapping("/complaints/{id}/status")
+    public ResponseEntity<ComplaintResponse> updateComplaintStatus(
+            @PathVariable Long id,
+            @RequestParam ComplaintStatus status,
+            @RequestParam(required = false) String adminNotes
+    ) {
+        return ResponseEntity.ok(complaintService.updateComplaintStatus(id, status, adminNotes));
     }
 }

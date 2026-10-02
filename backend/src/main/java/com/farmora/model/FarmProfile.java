@@ -126,6 +126,33 @@ public class FarmProfile {
     @Builder.Default
     private VerificationStatus verificationStatus = VerificationStatus.UNVERIFIED;
 
+    @Column(length = 150)
+    private String languagesSpoken; // e.g. Sinhala, Tamil, English
+
+    @Column(length = 100)
+    private String farmCategory; // e.g. Vegetables, Fruits, Rice, Spices, Dairy
+
+    @Builder.Default
+    @Column(nullable = false)
+    private Boolean pickupAvailable = true;
+
+    @Builder.Default
+    @Column(nullable = false)
+    private Boolean homeDeliveryAvailable = true;
+
+    private Double deliveryRadius; // km
+
+    private Double deliveryFee; // Rs.
+
+    @Column(length = 150)
+    private String bankAccount;
+
+    @Column(length = 100)
+    private String mobileWallet;
+
+    @Column(length = 500)
+    private String nicDocumentUrl;
+
     @Column(columnDefinition = "TEXT")
     private String verificationNotes;
 

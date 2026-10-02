@@ -5,24 +5,29 @@ import LoadingSpinner from '../../components/common/LoadingSpinner.vue'
 import { useAuthStore } from '../../stores/auth'
 import { farmService } from '../../services/farmService'
 import { orderService } from '../../services/orderService'
+import { analyticsService } from '../../services/analyticsService'
 import { calculateCredibility } from '../../utils/credibilityScore'
 
 const authStore = useAuthStore()
 const user = computed(() => authStore.user)
 
+const activeDashboardTab = ref('analytics') // 'analytics' | 'profile'
 const loading = ref(true)
 const farm = ref(null)
 const orders = ref([])
+const analytics = ref(null)
 
 const loadDashboardData = async () => {
   loading.value = true
   try {
-    const [farmData, ordersData] = await Promise.all([
+    const [farmData, ordersData, analyticsData] = await Promise.all([
       farmService.getMyFarmProfile().catch(() => null),
-      orderService.getMyOrders().catch(() => [])
+      orderService.getMyOrders().catch(() => []),
+      analyticsService.getFarmerAnalytics().catch(() => null)
     ])
     farm.value = farmData
     orders.value = ordersData || []
+    analytics.value = analyticsData
   } catch (err) {
     console.error('Failed to load farmer dashboard data', err)
   } finally {
@@ -82,13 +87,223 @@ const submissionDateFormatted = computed(() => {
             </div>
           </div>
 
-          <LoadingSpinner v-if="loading" message="Loading your farm credentials & profile..." />
+          <!-- Dashboard Section Switcher -->
+          <div class="nav nav-pills bg-white p-1 rounded-pill border shadow-sm mb-4 d-inline-flex">
+            <button
+              class="nav-link rounded-pill px-4 py-2 small fw-bold"
+              :class="{ active: activeDashboardTab === 'analytics' }"
+              @click="activeDashboardTab = 'analytics'"
+            >
+              <i class="bi bi-graph-up-arrow me-1"></i> Sales & Revenue Analytics
+            </button>
+            <button
+              class="nav-link rounded-pill px-4 py-2 small fw-bold"
+              :class="{ active: activeDashboardTab === 'profile' }"
+              @click="activeDashboardTab = 'profile'"
+            >
+              <i class="bi bi-shield-check me-1"></i> Credibility & Verification
+            </button>
+          </div>
+
+          <LoadingSpinner v-if="loading" message="Loading your farm analytics & profile..." />
 
           <template v-else>
             <!-- ============================================================
-                 TOP METRICS ROW (4 Cards)
+                 SECTION 1: SALES, REVENUE & CUSTOMER ANALYTICS (MEMBER 4)
                  ============================================================ -->
-            <div class="row g-3 mb-4">
+            <div v-if="activeDashboardTab === 'analytics'">
+              <!-- Metric Highlights Row -->
+              <div class="row g-3 mb-4">
+                <div class="col-sm-6 col-xl-3">
+                  <div class="card border-0 shadow-sm p-3 h-100 bg-white rounded-4">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                      <span class="small fw-bold text-muted">Total Sales & Revenue</span>
+                      <div class="icon-circle bg-success-subtle text-success">
+                        <i class="bi bi-cash-stack"></i>
+                      </div>
+                    </div>
+                    <div class="fs-4 fw-bold text-dark">
+                      Rs. {{ Number(analytics?.totalRevenue || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}
+                    </div>
+                    <small class="text-success fw-semibold"><i class="bi bi-arrow-up-right me-1"></i>Lifetime farm earnings</small>
+                  </div>
+                </div>
+
+                <div class="col-sm-6 col-xl-3">
+                  <div class="card border-0 shadow-sm p-3 h-100 bg-white rounded-4">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                      <span class="small fw-bold text-muted">Fulfilled Orders</span>
+                      <div class="icon-circle bg-primary-subtle text-primary">
+                        <i class="bi bi-bag-check-fill"></i>
+                      </div>
+                    </div>
+                    <div class="fs-4 fw-bold text-dark">
+                      {{ analytics?.totalSalesCount || orders.length }} Orders
+                    </div>
+                    <small class="text-muted">Total transactions closed</small>
+                  </div>
+                </div>
+
+                <div class="col-sm-6 col-xl-3">
+                  <div class="card border-0 shadow-sm p-3 h-100 bg-white rounded-4">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                      <span class="small fw-bold text-muted">Avg Order Value</span>
+                      <div class="icon-circle bg-warning-subtle text-warning">
+                        <i class="bi bi-graph-up"></i>
+                      </div>
+                    </div>
+                    <div class="fs-4 fw-bold text-dark">
+                      Rs. {{ Number(analytics?.avgOrderValue || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}
+                    </div>
+                    <small class="text-muted">Per order basket size</small>
+                  </div>
+                </div>
+
+                <div class="col-sm-6 col-xl-3">
+                  <div class="card border-0 shadow-sm p-3 h-100 bg-white rounded-4">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                      <span class="small fw-bold text-muted">Active Listings</span>
+                      <div class="icon-circle bg-info-subtle text-info">
+                        <i class="bi bi-boxes"></i>
+                      </div>
+                    </div>
+                    <div class="fs-4 fw-bold text-dark">
+                      {{ analytics?.activeListingsCount || 0 }} Crops
+                    </div>
+                    <small class="text-muted">Available in marketplace</small>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Product Performance Table -->
+              <div class="card border-0 shadow-sm p-4 rounded-4 bg-white mb-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                  <div>
+                    <h5 class="fw-bold mb-1"><i class="bi bi-star-fill text-warning me-2"></i>Product Performance</h5>
+                    <p class="text-muted small mb-0">Track units sold, revenue generated, and conversion rate per listed crop</p>
+                  </div>
+                  <router-link to="/farmer/my-products" class="btn btn-outline-success btn-sm rounded-pill px-3">
+                    Manage Products
+                  </router-link>
+                </div>
+
+                <div v-if="analytics?.topProducts?.length > 0" class="table-responsive">
+                  <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light small text-muted">
+                      <tr>
+                        <th>Product / Crop</th>
+                        <th>Category</th>
+                        <th>Units Sold</th>
+                        <th>Remaining Stock</th>
+                        <th>Revenue</th>
+                        <th>Stock Conversion</th>
+                      </tr>
+                    </thead>
+                    <tbody class="small">
+                      <tr v-for="prod in analytics.topProducts" :key="prod.productId">
+                        <td>
+                          <div class="fw-bold text-dark">{{ prod.name }}</div>
+                          <small class="text-muted">ID: #{{ prod.productId }}</small>
+                        </td>
+                        <td><span class="badge bg-light text-secondary border rounded-pill">{{ prod.category }}</span></td>
+                        <td><strong>{{ prod.unitsSold }}</strong> {{ prod.unit }}</td>
+                        <td>{{ prod.remainingStock }} {{ prod.unit }}</td>
+                        <td class="fw-bold text-success">Rs. {{ Number(prod.revenueGenerated || 0).toLocaleString() }}</td>
+                        <td style="min-width: 140px;">
+                          <div class="d-flex align-items-center gap-2">
+                            <div class="progress flex-grow-1" style="height: 6px;">
+                              <div
+                                class="progress-bar bg-success"
+                                :style="{ width: `${prod.conversionRate}%` }"
+                              ></div>
+                            </div>
+                            <span class="small fw-semibold">{{ prod.conversionRate }}%</span>
+                          </div>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <p v-else class="text-muted small mb-0">No product sales recorded yet. Once orders are placed, product performance will appear here.</p>
+              </div>
+
+              <!-- Price Analytics Benchmarking -->
+              <div class="row g-4 mb-4">
+                <div class="col-lg-6">
+                  <div class="card border-0 shadow-sm p-4 rounded-4 bg-white h-100">
+                    <h5 class="fw-bold mb-1"><i class="bi bi-tag-fill text-primary me-2"></i>Price Analytics & Benchmark</h5>
+                    <p class="text-muted small mb-3">Compare your farm prices against platform-wide market averages</p>
+
+                    <div v-if="analytics?.priceAnalytics?.length > 0" class="d-flex flex-column gap-3">
+                      <div
+                        v-for="bench in analytics.priceAnalytics"
+                        :key="bench.cropName"
+                        class="p-3 border rounded-3 bg-light d-flex justify-content-between align-items-center"
+                      >
+                        <div>
+                          <div class="fw-bold text-dark mb-0">{{ bench.cropName }}</div>
+                          <small class="text-muted">{{ bench.category }} &bull; per {{ bench.unit }}</small>
+                        </div>
+                        <div class="text-end">
+                          <div class="fw-bold text-dark">Rs. {{ Number(bench.myAvgPrice).toFixed(2) }}</div>
+                          <div class="small text-muted" style="font-size: 0.72rem;">Market: Rs. {{ Number(bench.marketAvgPrice).toFixed(2) }}</div>
+                          <span
+                            class="badge rounded-pill mt-1"
+                            :class="bench.trend === 'COMPETITIVE' ? 'bg-success' : (bench.trend === 'PREMIUM' ? 'bg-warning text-dark' : 'bg-secondary')"
+                            style="font-size: 0.65rem;"
+                          >
+                            {{ bench.trend }}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    <p v-else class="text-muted small mb-0">No listed crop prices available to benchmark.</p>
+                  </div>
+                </div>
+
+                <!-- Customer Intelligence / Buyer List -->
+                <div class="col-lg-6">
+                  <div class="card border-0 shadow-sm p-4 rounded-4 bg-white h-100">
+                    <h5 class="fw-bold mb-1"><i class="bi bi-people-fill text-success me-2"></i>Customer Intelligence</h5>
+                    <p class="text-muted small mb-3">Analyze your buyer list, repeat customers, and order frequency</p>
+
+                    <div v-if="analytics?.customerList?.length > 0" class="d-flex flex-column gap-2 overflow-y-auto" style="max-height: 380px;">
+                      <div
+                        v-for="cust in analytics.customerList"
+                        :key="cust.buyerId"
+                        class="p-3 border rounded-3 bg-light d-flex justify-content-between align-items-center"
+                      >
+                        <div class="d-flex align-items-center gap-3">
+                          <div class="avatar-small rounded-circle bg-success text-white d-flex align-items-center justify-content-center fw-bold" style="width: 36px; height: 36px;">
+                            {{ cust.fullName.charAt(0).toUpperCase() }}
+                          </div>
+                          <div>
+                            <div class="fw-bold text-dark mb-0" style="font-size: 0.88rem;">{{ cust.fullName }}</div>
+                            <small class="text-muted" style="font-size: 0.75rem;">{{ cust.location }} &bull; {{ cust.email }}</small>
+                          </div>
+                        </div>
+
+                        <div class="text-end">
+                          <div class="fw-bold text-success" style="font-size: 0.88rem;">Rs. {{ Number(cust.totalAmountSpent || 0).toLocaleString() }}</div>
+                          <div class="small text-muted" style="font-size: 0.72rem;">{{ cust.totalOrdersPlaced }} orders</div>
+                          <span v-if="cust.isRepeatBuyer" class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill" style="font-size: 0.62rem;">
+                            Repeat Buyer
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    <p v-else class="text-muted small mb-0">No buyer relationships established yet.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- ============================================================
+                 SECTION 2: FARM CREDIBILITY & VERIFICATION (GROUP 1)
+                 ============================================================ -->
+            <div v-else>
+              <!-- TOP METRICS ROW (4 Cards) -->
+              <div class="row g-3 mb-4">
               <!-- Card 1: Profile Completion -->
               <div class="col-sm-6 col-xl-3">
                 <div class="card border-0 shadow-sm p-3 h-100 bg-white rounded-3">
@@ -409,6 +624,7 @@ const submissionDateFormatted = computed(() => {
                 </div>
               </div>
             </div>
+          </div>
 
           </template>
         </div>

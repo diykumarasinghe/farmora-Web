@@ -27,6 +27,10 @@ const form = ref({
   harvestDate: new Date().toISOString().split('T')[0],
   imageUrl: '',
   videoUrl: '',
+  qualityGrade: 'Grade A',
+  packagingInfo: 'Eco Crates',
+  minOrderQuantity: 1,
+  bulkOrderAvailable: true,
   isFreshToday: true
 })
 
@@ -42,11 +46,18 @@ const handleSubmit = async () => {
       description: form.value.description,
       category: form.value.category,
       price: parseFloat(form.value.price),
+      wholesalePrice: form.value.wholesalePrice ? parseFloat(form.value.wholesalePrice) : null,
       quantity: parseFloat(form.value.quantity),
       unit: form.value.unit,
       location: form.value.location || form.value.district,
       harvestDate: form.value.harvestDate,
-      imageUrl: form.value.imageUrl || 'https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=600&q=80'
+      imageUrl: form.value.imageUrl || 'https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=600&q=80',
+      videoUrl: form.value.videoUrl || null,
+      farmingMethod: form.value.farmingMethod,
+      qualityGrade: form.value.qualityGrade,
+      packagingInfo: form.value.packagingInfo,
+      minOrderQuantity: form.value.minOrderQuantity ? parseFloat(form.value.minOrderQuantity) : 1,
+      bulkOrderAvailable: form.value.bulkOrderAvailable
     }
 
     await productService.createProduct(payload)
@@ -219,7 +230,53 @@ const handleSubmit = async () => {
               </div>
             </div>
 
-            <!-- Row 5: Quality Notes & Description -->
+            <!-- Row 5: Quality Grade, Packaging & Wholesale Ordering -->
+            <div class="row g-3 mb-3">
+              <div class="col-md-4">
+                <label class="form-label small fw-bold">Quality Grade</label>
+                <select v-model="form.qualityGrade" class="form-select">
+                  <option value="Grade A">Grade A (Export Quality)</option>
+                  <option value="Grade B">Grade B (Standard Market)</option>
+                  <option value="Premium Organic">Premium Organic</option>
+                  <option value="Commercial Processing">Commercial Processing</option>
+                </select>
+              </div>
+
+              <div class="col-md-4">
+                <label class="form-label small fw-bold">Packaging Information</label>
+                <input
+                  type="text"
+                  v-model="form.packagingInfo"
+                  class="form-control"
+                  placeholder="e.g. Eco Wooden Crates, Jute Sacks..."
+                />
+              </div>
+
+              <div class="col-md-2 col-sm-6">
+                <label class="form-label small fw-bold">MOQ (Min Order)</label>
+                <input
+                  type="number"
+                  min="1"
+                  v-model="form.minOrderQuantity"
+                  class="form-control"
+                  placeholder="1"
+                />
+              </div>
+
+              <div class="col-md-2 col-sm-6 d-flex align-items-center pt-3">
+                <div class="form-check form-switch">
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    id="bulkOrderToggle"
+                    v-model="form.bulkOrderAvailable"
+                  />
+                  <label class="form-check-label small fw-bold" for="bulkOrderToggle">Bulk Orders</label>
+                </div>
+              </div>
+            </div>
+
+            <!-- Row 6: Quality Notes & Description -->
             <div class="mb-4">
               <label class="form-label small fw-bold">Description & Quality Specifications</label>
               <textarea
